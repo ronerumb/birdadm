@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class CorController extends Controller
 {
+
+    public function __construct(Cor $cor){
+        $this->cor = $cor;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,10 @@ class CorController extends Controller
      */
     public function index()
     {
-        //
+        Cor::all();        
+        return Cor::all();
+
+        
     }
 
     /**
@@ -35,7 +42,13 @@ class CorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->cor->rules(),$this->cor-> feedback());
+
+        $cor = $this->cor->create([
+            'nome' => $request->nome
+        ]);
+        return response()->json($cor,201);
+
     }
 
     /**
@@ -44,9 +57,14 @@ class CorController extends Controller
      * @param  \App\Models\Cor  $cor
      * @return \Illuminate\Http\Response
      */
-    public function show(Cor $cor)
+    public function show($id)
     {
-        //
+        $cor = $this->cor->find($id);
+        if($cor == null){
+           return response()->json('ID não encontrado', 404);
+        }
+        return response()->json($cor, 200);
+     
     }
 
     /**
@@ -67,9 +85,33 @@ class CorController extends Controller
      * @param  \App\Models\Cor  $cor
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Cor $cor)
+    public function update(Request $request, $id)
     {
-        //
+        $cor = $this->cor->find($id);
+        if(!$cor){
+            return response()->json('ID não encontrado',404);
+        }
+
+        if($request->method === 'PATCH'){
+            $regras = array();
+
+            foreach($cor->rules() as $input => $regra){//Validacao das regras patch
+                if(array_key_exists($input,$request->all())){
+                    $regras[$input] = $regra;
+                }
+            }
+            $request->validate($regras);
+        }
+        else {
+            $request->validate($cor->rules());
+        }
+        
+        $cor->fill($request->all());
+        $cor->save();
+        
+        return response()->json($cor, 200);
+        
+        
     }
 
     /**
@@ -78,8 +120,13 @@ class CorController extends Controller
      * @param  \App\Models\Cor  $cor
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Cor $cor)
+    public function destroy($id)
     {
-        //
+        $cor = $this->cor->find($id);
+        if(!$cor){
+            return response()->json('ID não encontrado',404);
+        }
+        $cor->delete();
+        
     }
 }
