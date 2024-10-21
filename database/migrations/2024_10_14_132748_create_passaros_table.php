@@ -15,7 +15,7 @@ class CreatePassarosTable extends Migration
     {
         Schema::create('passaros', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('anilha_id');
+            $table->unsignedBigInteger('anilha_id')->unique();
             $table->unsignedBigInteger('cor_id');
             $table->unsignedBigInteger('especie_id');
             $table->unsignedBigInteger('situacao_id');

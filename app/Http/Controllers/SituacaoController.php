@@ -12,9 +12,13 @@ class SituacaoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __contruct(Situacao $situacao){
+        $this->situacao = $situacao;
+    }
     public function index()
     {
-        //
+        return response()->json($this->situacao::all(), 200);
     }
 
     /**
@@ -35,7 +39,12 @@ class SituacaoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->situacao->rules(),$this->situacao->feedback());
+        $situacao = $this->situacao->create([
+            'nome' => $request->nome,
+            'observacoes' => $request->observacoes
+        ]);
+        return response()->json($situacao,201);
     }
 
     /**
@@ -44,9 +53,13 @@ class SituacaoController extends Controller
      * @param  \App\Models\Situacao  $situacao
      * @return \Illuminate\Http\Response
      */
-    public function show(Situacao $situacao)
+    public function show($id)
     {
-        //
+        $situacao = $this->situacao->find($id);
+        if($situacao == null){
+           return response()->json('ID não encontrado', 404);
+        }
+        return response()->json($situacao, 200);
     }
 
     /**
@@ -67,9 +80,32 @@ class SituacaoController extends Controller
      * @param  \App\Models\Situacao  $situacao
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Situacao $situacao)
+    public function update(Request $request, $id)
     {
-        //
+        $situacao = $this->situacao->find($id);
+        if(!$situacao){
+            return response()->json('ID não encontrado',404);
+        }
+
+        if($request->method === 'PATCH'){
+            $regras = array();
+
+            foreach($situacao->rules() as $input => $regra){//Validacao das regras patch
+                if(array_key_exists($input,$request->all())){
+                    $regras[$input] = $regra;
+                }
+            }
+            $request->validate($regras);
+        }
+        else {
+            $request->validate($situacao->rules());
+        }
+        
+        $situacao->fill($request->all());
+        $situacao->save();
+        
+        return response()->json($situacao, 200);
+        
     }
 
     /**
@@ -78,8 +114,12 @@ class SituacaoController extends Controller
      * @param  \App\Models\Situacao  $situacao
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Situacao $situacao)
+    public function destroy( $id)
     {
-        //
+        $situacao = $this->situacao->find($id);
+        if(!$situacao){
+            return response()->json('ID não encontrado',404);
+        }
+        $situacao->delete();
     }
 }

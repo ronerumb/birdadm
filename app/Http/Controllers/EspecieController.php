@@ -12,9 +12,13 @@ class EspecieController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function __construct(Especie $especie){
+        $this->especie = $especie;
+     }
     public function index()
     {
-        //
+         return response()->json($this->especie::all(), 200);
     }
 
     /**
@@ -35,7 +39,13 @@ class EspecieController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->especie->rules(),$this->especie-> feedback());
+
+        $especie = $this->especie->create([
+            'nome' => $request->nome,
+            'observacoes' => $request->observacoes
+        ]);
+        return response()->json($especie,201);
     }
 
     /**
@@ -44,9 +54,13 @@ class EspecieController extends Controller
      * @param  \App\Models\Especie  $especie
      * @return \Illuminate\Http\Response
      */
-    public function show(Especie $especie)
+    public function show($id)
     {
-        //
+        $especie = $this->especie->find($id);
+        if($especie == null){
+           return response()->json('ID não encontrado', 404);
+        }
+        return response()->json($especie, 200);
     }
 
     /**
@@ -67,9 +81,33 @@ class EspecieController extends Controller
      * @param  \App\Models\Especie  $especie
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Especie $especie)
+    public function update(Request $request, $id)
     {
-        //
+        $especie = $this->especie->find($id);
+        if(!$especie){
+            return response()->json('ID não encontrado',404);
+        }
+
+        if($request->method === 'PATCH'){
+            $regras = array();
+
+            foreach($especie->rules() as $input => $regra){//Validacao das regras patch
+                if(array_key_exists($input,$request->all())){
+                    $regras[$input] = $regra;
+                }
+            }
+            $request->validate($regras);
+        }
+        else {
+            $request->validate($especie->rules());
+        }
+        
+        $especie->fill($request->all());
+        $especie->save();
+        
+        return response()->json($especie, 200);
+        
+        
     }
 
     /**
@@ -78,8 +116,12 @@ class EspecieController extends Controller
      * @param  \App\Models\Especie  $especie
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Especie $especie)
+    public function destroy($id)
     {
-        //
+        $especie = $this->especie->find($id);
+        if(!$especie){
+            return response()->json('ID não encontrado',404);
+        }
+        $especie->delete();
     }
 }

@@ -12,9 +12,12 @@ class AnilhaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct(Anilha $anilha){
+        $this->anilha = $anilha;
+     }
     public function index()
     {
-        //
+        return response()->json($this->anilha::all(), 200);
     }
 
     /**
@@ -35,7 +38,12 @@ class AnilhaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate($this->anilha->rules(),$this->anilha-> feedback());
+
+        $especie = $this->anilha->create([
+            'numeracao' => $request->numeracao
+        ]);
+        return response()->json($anilha,201);
     }
 
     /**
@@ -44,9 +52,13 @@ class AnilhaController extends Controller
      * @param  \App\Models\Anilha  $anilha
      * @return \Illuminate\Http\Response
      */
-    public function show(Anilha $anilha)
+    public function show($id)
     {
-        //
+        $anilha = $this->anilha->find($id);
+        if($anilha == null){
+           return response()->json('ID não encontrado', 404);
+        }
+        return response()->json($anilha, 200);
     }
 
     /**
@@ -67,9 +79,34 @@ class AnilhaController extends Controller
      * @param  \App\Models\Anilha  $anilha
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Anilha $anilha)
+    public function update(Request $request, $id)
     {
-        //
+  
+        $anilha = $this->anilha->find($id);
+        if(!$anilha){
+            return response()->json('ID não encontrado',404);
+        }
+
+        if($request->method === 'PATCH'){
+            $regras = array();
+
+            foreach($anilha->rules() as $input => $regra){//Validacao das regras patch
+                if(array_key_exists($input,$request->all())){
+                    $regras[$input] = $regra;
+                }
+            }
+            $request->validate($regras);
+        }
+        else {
+            $request->validate($anilha->rules());
+        }
+        
+        $anilha->fill($request->all());
+        $anilha->save();
+        
+        return response()->json($anilha, 200);
+        
+        
     }
 
     /**
@@ -78,8 +115,13 @@ class AnilhaController extends Controller
      * @param  \App\Models\Anilha  $anilha
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Anilha $anilha)
+    public function destroy( $id)
     {
-        //
+        $anilha = $this->anilha->find($id);
+        if(!$anilha){
+            return response()->json('ID não encontrado',404);
+        }
+        $anilha->delete();
     }
-}
+    }
+

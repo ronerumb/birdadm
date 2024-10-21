@@ -20,3 +20,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 Route::apiresource('cor', 'App\Http\Controllers\CorController');
+Route::apiresource('especie', 'App\Http\Controllers\EspecieController');
+Route::apiresource('anilha', 'App\Http\Controllers\AnilhaController');
+Route::apiresource('passaro', 'App\Http\Controllers\PassaroController');

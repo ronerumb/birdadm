@@ -15,6 +15,7 @@ class CreateAnilhasTable extends Migration
     {
         Schema::create('anilhas', function (Blueprint $table) {
             $table->id();
+            $table->string('numeracao');
             $table->timestamps();
         });
     }
