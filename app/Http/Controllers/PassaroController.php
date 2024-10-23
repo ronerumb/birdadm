@@ -139,7 +139,7 @@ class PassaroController extends Controller
      * @param  \App\Models\Passaro  $passaro
      * @return \Illuminate\Http\Response
      */
-    public function destroy($ido)
+    public function destroy($id)
     {
         $passaro = $this->passaro->find($id);
         if(!$passaro){
