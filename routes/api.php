@@ -18,15 +18,20 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+Route::middleware('jwt.auth')->group(function () {
 Route::apiresource('cor', 'App\Http\Controllers\CorController');
 Route::apiresource('especie', 'App\Http\Controllers\EspecieController');
 Route::apiresource('anilha', 'App\Http\Controllers\AnilhaController');
 Route::apiresource('passaro', 'App\Http\Controllers\PassaroController');
 
 
-
-Route::post('login', 'App\Http\Controllers\AuthController@login');
 Route::post('refresh',  'App\Http\Controllers\AuthController@refresh');
 Route::post('logout' ,  'App\Http\Controllers\AuthController@logout');
 Route::post('me',  'App\Http\Controllers\AuthController@me');
+    
+});
+
+
+
+
+Route::post('login', 'App\Http\Controllers\AuthController@login');
